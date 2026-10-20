@@ -29,6 +29,14 @@ npm test         # run unit tests (Vitest)
 - `localStorage` for phrase history and settings
 - [Vitest](https://vitest.dev/) + JSDOM for unit tests
 
+## Access the App
+
+The live app is hosted on GitHub Pages:
+
+**https://govindarajanv.github.io/business_english/**
+
+> Note: it goes live after the first successful GitHub Actions run once Pages is enabled with **Source → GitHub Actions**. If it's not yet available, run the workflow manually (Actions → "Deploy to GitHub Pages" → Run workflow).
+
 ## GitHub Pages
 
 The app is fully static (client-side) and **GitHub Pages compatible**. A GitHub Actions workflow (`.github/workflows/deploy.yml`) builds the site and deploys `dist/` to Pages automatically on every push to `main`. The Vite config uses relative asset paths (`base: './'`) so the site works under the repo's Pages URL.
