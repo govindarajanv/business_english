@@ -4,13 +4,16 @@ This repository contains a **US Business English Tutor** web application (see `R
 
 ## Generation behavior
 
-When you ask the app to **"generate"** or **"try now"**, it produces a batch of **10 sentences** — business English phrases with their meaning and the context in which they should be used — presented in a three-column table:
+When the user asks to **"generate"** or **"try now"**, produce a batch of **10 sentences** — US business English phrases with their meaning and the context in which they should be used — presented in a three-column table:
 
 | Phrase | Meaning | When to Use It |
 | :--- | :--- | :--- |
 | Touch base | To connect briefly and discuss something | "Let's touch base next week to review project progress." |
 
-Each batch contains **10 phrases not covered in the already-shown list** (tracked in `localStorage`). When the phrase bank is exhausted, the history recycles so generation continues without duplicates within a batch.
+The generated batch must contain **10 phrases that do NOT exist anywhere in the current phrase bank** (`src/data/phrases.js`, currently 120 phrases) — not merely phrases absent from an already-shown list. Confirmed user rule: "all [the current count] should not have these newly generated phrases." To meet this:
+
+- If the phrases already exist in the bank, sample 10 unseen ones (deduplicated, tracked in `localStorage`); the bank recycles when exhausted so generation continues without within-batch duplicates.
+- If the user wants phrases beyond the bank, **generate brand-new phrases** and **add them to `src/data/phrases.js`**, then verify the new count.
 
 ## UI requirements (implemented)
 

@@ -3,7 +3,7 @@ import { speechService } from './modules/speechService.js';
 import Flashcards from './modules/flashcards.js';
 import { getItem, STORAGE_KEYS } from './utils/storage.js';
 
-const VERSION = 'v1.1.1';
+const VERSION = 'v1.2.0';
 
 const el = {
   version: document.getElementById('app-version'),
