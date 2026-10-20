@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business English Tutor</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="header-container">
+        <h1 class="app-title">Business English Tutor</h1>
+        <div class="version-tag">
+          <span class="version-label">Version</span>
+          <span class="version-badge" id="app-version">v1.0.0</span>
+        </div>
+        <p class="app-subtitle">Master US Corporate Idioms, Business Phrases &amp; Contextual Usage</p>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="controls" aria-label="Controls">
+        <div class="controls-primary">
+          <button id="btn-generate" class="btn btn-primary" type="button">Generate 10 Phrases</button>
+          <button id="btn-try-now" class="btn btn-secondary" type="button">Try Now</button>
+          <button id="btn-play-all" class="btn btn-accent" type="button">▶ Play All</button>
+          <button id="btn-stop" class="btn btn-ghost" type="button" disabled>⏹ Stop</button>
+        </div>
+        <div class="controls-settings">
+          <label class="setting" for="voice-select">
+            <span>Voice</span>
+            <select id="voice-select"></select>
+          </label>
+          <label class="setting" for="rate-slider">
+            <span>Speed <output id="rate-value">1.0x</output></span>
+            <input id="rate-slider" type="range" min="0.5" max="2" step="0.1" value="1" />
+          </label>
+        </div>
+        <div id="play-status" class="play-status" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="table-section" aria-label="Phrases">
+        <h2 class="section-title">Phrase Bank</h2>
+        <div id="pool-stats" class="pool-stats"></div>
+        <div class="table-wrap">
+          <table class="phrase-table" id="phrase-table">
+            <thead>
+              <tr>
+                <th scope="col" class="col-phrase">Phrase</th>
+                <th scope="col" class="col-meaning">Meaning</th>
+                <th scope="col" class="col-when">When to Use It</th>
+              </tr>
+            </thead>
+            <tbody id="phrase-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="flashcards-section" aria-label="Revision Flashcards">
+        <h2 class="section-title">Revision Flashcards</h2>
+        <div class="flashcard-controls">
+          <button id="fc-prev" class="btn btn-ghost" type="button">← Previous</button>
+          <button id="fc-flip" class="btn btn-secondary" type="button">Flip Card</button>
+          <button id="fc-next" class="btn btn-ghost" type="button">Next →</button>
+          <button id="fc-shuffle" class="btn btn-ghost" type="button">🔀 Shuffle</button>
+          <button id="fc-mastered" class="btn btn-ghost" type="button">✓ Mark as Mastered</button>
+        </div>
+        <div class="flashcard-wrapper">
+          <div class="flashcard" id="flashcard">
+            <div class="flashcard-inner" id="flashcard-inner">
+              <div class="flashcard-face flashcard-front" id="fc-front">
+                <span class="fc-category" id="fc-category">Meetings</span>
+                <h3 class="fc-phrase" id="fc-phrase">Touch base</h3>
+                <button class="speak-btn fc-speak" type="button" aria-label="Play phrase">🔊</button>
+                <p class="fc-hint">Flip to see meaning &amp; usage</p>
+              </div>
+              <div class="flashcard-face flashcard-back" id="fc-back">
+                <span class="fc-category" id="fc-category-back">Meetings</span>
+                <h4 class="fc-meaning-label">Meaning</h4>
+                <p class="fc-meaning" id="fc-meaning">To connect briefly.</p>
+                <h4 class="fc-when-label">When to Use It</h4>
+                <blockquote class="fc-when">
+                  <span id="fc-when">"Let's touch base next week."</span>
+                  <button class="speak-btn" type="button" aria-label="Play example">🔊</button>
+                </blockquote>
+                <p class="fc-hint">Flip back to see the phrase</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="fc-counter" id="fc-counter">Card 1 of 10</p>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>Business English Tutor</span>
+      <span class="footer-version" id="footer-version">v1.0.0</span>
+    </footer>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
