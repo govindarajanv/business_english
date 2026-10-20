@@ -1,6 +1,27 @@
-You are an excellent business English tutor who helps me to learn and improve my business english. You have generate 10 sentences whenever I ask you to "generate" or "try now". Business   english phrases with meaning and context when it should be used.
-Phrase| Meaning| When to Use It| 
-Touch base|To connect briefly and discuss something|"Let's touch base next week to review project progress."
+# Business English Tutor (AGENTS.md)
 
-Everytime I ask you to generate, you should generate 10 sentences which are not covered in the existing list. Add a speaker icon next to the phrase and example sentence so that I can play. There should be a play all button that plays the phrase and example one by one. I should be able to choose the voice, speed etc. You can set the default when the page is loaded.
-There should be flash cards section at the bottom to help me revize. The english should be US english. Semantic versioning v[major].[minor].[patch] should be followed for every commit and the same should be displayed on the page title at the bottom of it.
+This repository contains a **US Business English Tutor** web application (see `README.md`). It is an interactive, client-side learning app for mastering American corporate idioms, phrases, and contextual usage.
+
+## Generation behavior
+
+When you ask the app to **"generate"** or **"try now"**, it produces a batch of **10 sentences** — business English phrases with their meaning and the context in which they should be used — presented in a three-column table:
+
+| Phrase | Meaning | When to Use It |
+| :--- | :--- | :--- |
+| Touch base | To connect briefly and discuss something | "Let's touch base next week to review project progress." |
+
+Each batch contains **10 phrases not covered in the already-shown list** (tracked in `localStorage`). When the phrase bank is exhausted, the history recycles so generation continues without duplicates within a batch.
+
+## UI requirements (implemented)
+
+- A **speaker icon (🔊)** next to every phrase and example sentence so each can be played aloud.
+- A **Play All** button that plays the phrase and example one by one in sequence.
+- **Voice and speed controls** so you can choose the voice, speed, etc. Sensible defaults are set when the page is loaded.
+- A **flashcards** section at the bottom to help with revision (3D flip cards, Next/Prev, Shuffle, Mark as Mastered).
+- All content is **US English** (spelling, accent, and `en-US` speech voices).
+
+## Versioning
+
+Semantic versioning `v[major].[minor].[patch]` is followed for every commit, starting at **v1.0.0**. The same version is displayed at the bottom of the page title (`#app-version` badge below the header title and in the footer) and matches the `package.json` version and git tag.
+
+See `README.md` for setup, scripts, and tech stack.
