@@ -184,6 +184,40 @@ class SpeechService {
     this._emitState();
   }
 
+  togglePause() {
+    if (this.isPaused) {
+      this.resume();
+    } else if (this.isPlaying) {
+      this.pause();
+    }
+    return this.isPaused;
+  }
+
+  next() {
+    const synth = getSpeechSynthesis();
+    if (synth) synth.cancel();
+    this.isPaused = false;
+    const total = this.queue.length;
+    if (!total) return;
+    this.currentStep = total - 1 === this.currentStep ? 0 : this.currentStep + 1;
+    this._playStep();
+  }
+
+  previous() {
+    const synth = getSpeechSynthesis();
+    if (synth) synth.cancel();
+    this.isPaused = false;
+    const total = this.queue.length;
+    if (!total) return;
+    this.currentStep = this.currentStep === 0 ? total - 1 : this.currentStep - 1;
+    this._playStep();
+  }
+
+  getCurrentSentence() {
+    const step = this.queue[this.currentStep];
+    return step ? step.text : '';
+  }
+
   stop() {
     const synth = getSpeechSynthesis();
     if (synth) synth.cancel();

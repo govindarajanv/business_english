@@ -5,9 +5,11 @@ An interactive, client-side **US Business English** learning web application. It
 ## Features
 
 - **Generate 10 phrases** — Click **Generate 10 Phrases** or **Try Now** to load a fresh batch of 10 unique phrases (never repeated across batches until the bank is exhausted).
+- **View All** — Shows the entire phrase bank grouped by category, with each group's phrase count.
 - **Phrase table** — Each row shows the phrase, its meaning, and a contextual "When to Use It" example.
 - **Speaker icons** — 🔊 button next to every phrase and every example sentence lets you play the US audio.
-- **Play All** — Plays every phrase and example in sequence, one by one, with real-time row highlighting and a Stop control.
+- **Play All** — Plays every phrase and example across the currently displayed list (batch or full bank) in sequence, with real-time row highlighting.
+- **Playback controls** — While playing, use **Pause/Play**, **Prev**, and **Next** to move through phrases; **Stop** ends playback.
 - **Voice & speed controls** — Choose a US English voice and adjust playback speed (0.5x–2.0x). Defaults are set on page load and remembered.
 - **Revision flashcards** — A 3D flip-card deck at the bottom to revise: flip, Previous/Next, Shuffle, and Mark as Mastered.
 

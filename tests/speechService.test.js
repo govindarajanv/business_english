@@ -109,4 +109,47 @@ describe('SpeechService', () => {
     expect(window.speechSynthesis.cancel).toHaveBeenCalled();
     expect(completed).toEqual({ cancelled: true });
   });
+
+  it('moves forward with next() and backward with previous()', () => {
+    vi.useFakeTimers();
+    const { synth } = setupMockSpeech();
+    const service = new SpeechService().init();
+    const phrases = [
+      { id: 'a', phrase: 'Phrase A', whenToUse: 'Example A', meaning: 'M' },
+      { id: 'b', phrase: 'Phrase B', whenToUse: 'Example B', meaning: 'M' },
+    ];
+    const progress = [];
+    service.playAll(phrases, { onProgress: (s) => progress.push(s) });
+
+    expect(progress[0]).toMatchObject({ type: 'phrase', id: 'a' });
+
+    service.next();
+    expect(progress.at(-1)).toMatchObject({ type: 'example', id: 'a' });
+
+    service.next();
+    expect(progress.at(-1)).toMatchObject({ type: 'phrase', id: 'b' });
+
+    service.previous();
+    expect(progress.at(-1)).toMatchObject({ type: 'example', id: 'a' });
+
+    service.previous();
+    expect(progress.at(-1)).toMatchObject({ type: 'phrase', id: 'a' });
+
+    expect(synth.cancel).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it('pauses and resumes playback correctly', () => {
+    vi.useFakeTimers();
+    setupMockSpeech();
+    const service = new SpeechService().init();
+    const phrases = [{ id: 'a', phrase: 'P', whenToUse: 'E', meaning: 'M' }];
+    service.playAll(phrases);
+    expect(service.isPaused).toBe(false);
+    service.togglePause();
+    expect(service.isPaused).toBe(true);
+    service.togglePause();
+    expect(service.isPaused).toBe(false);
+    vi.useRealTimers();
+  });
 });

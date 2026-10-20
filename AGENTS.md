@@ -19,6 +19,8 @@ The generated batch must contain **10 phrases that do NOT exist anywhere in the 
 
 - A **speaker icon (🔊)** next to every phrase and example sentence so each can be played aloud.
 - A **Play All** button that plays the phrase and example one by one in sequence.
+- **Playback controls** — Pause/Play, Prev, and Next let you move through the playing phrases; Stop ends playback.
+- A **View All** button that shows the entire phrase bank grouped by category (tag), with per-group counts; Play All plays through all groups in sequence.
 - **Voice and speed controls** so you can choose the voice, speed, etc. Sensible defaults are set when the page is loaded.
 - A **flashcards** section at the bottom to help with revision (3D flip cards, Next/Prev, Shuffle, Mark as Mastered).
 - All content is **US English** (spelling, accent, and `en-US` speech voices).

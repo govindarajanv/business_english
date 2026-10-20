@@ -44,6 +44,10 @@ class PhraseEngine {
     return this.currentBatch;
   }
 
+  viewAll() {
+    return [...ALL_PHRASES];
+  }
+
   resetHistory() {
     this.seenIds = [];
     removeItem(STORAGE_KEYS.seenIds);

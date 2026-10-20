@@ -3,15 +3,19 @@ import { speechService } from './modules/speechService.js';
 import Flashcards from './modules/flashcards.js';
 import { getItem, STORAGE_KEYS } from './utils/storage.js';
 
-const VERSION = 'v1.6.0';
+const VERSION = 'v1.7.0';
 
 const el = {
   version: document.getElementById('app-version'),
   footerVersion: document.getElementById('footer-version'),
   btnGenerate: document.getElementById('btn-generate'),
   btnTryNow: document.getElementById('btn-try-now'),
+  btnViewAll: document.getElementById('btn-view-all'),
   btnPlayAll: document.getElementById('btn-play-all'),
   btnStop: document.getElementById('btn-stop'),
+  btnPrev: document.getElementById('btn-prev'),
+  btnPause: document.getElementById('btn-pause'),
+  btnNext: document.getElementById('btn-next'),
   playStatus: document.getElementById('play-status'),
   voiceSelect: document.getElementById('voice-select'),
   rateSlider: document.getElementById('rate-slider'),
@@ -34,6 +38,8 @@ const el = {
 
 let cards = null;
 let activeSpeakBtn = null;
+let currentPhrases = [];
+let viewMode = 'batch'; // 'batch' | 'all'
 
 function setVersion() {
   el.version.textContent = VERSION;
@@ -70,42 +76,78 @@ function createSpeakButton(text, label) {
   return btn;
 }
 
-function renderTable(phrases) {
-  el.tbody.innerHTML = '';
+function groupByCategory(phrases) {
+  const groups = new Map();
   phrases.forEach((p) => {
-    const tr = document.createElement('tr');
-    tr.dataset.id = p.id;
-
-    const tdPhrase = document.createElement('td');
-    const phraseWrap = document.createElement('div');
-    phraseWrap.className = 'phrase-word';
-    phraseWrap.appendChild(createSpeakButton(p.phrase, 'phrase'));
-    const phraseTxt = document.createElement('span');
-    phraseTxt.textContent = p.phrase;
-    phraseWrap.appendChild(phraseTxt);
-    tdPhrase.appendChild(phraseWrap);
-    tdPhrase.appendChild(Object.assign(document.createElement('span'), {
-      className: 'category-tag',
-      textContent: p.category,
-    }));
-
-    const tdMeaning = document.createElement('td');
-    tdMeaning.textContent = p.meaning;
-
-    const tdWhen = document.createElement('td');
-    const whenWrap = document.createElement('div');
-    whenWrap.className = 'phrase-word';
-    whenWrap.appendChild(createSpeakButton(p.whenToUse, 'example'));
-    const whenTxt = document.createElement('span');
-    whenTxt.textContent = p.whenToUse;
-    whenWrap.appendChild(whenTxt);
-    tdWhen.appendChild(whenWrap);
-
-    tr.appendChild(tdPhrase);
-    tr.appendChild(tdMeaning);
-    tr.appendChild(tdWhen);
-    el.tbody.appendChild(tr);
+    if (!groups.has(p.category)) groups.set(p.category, []);
+    groups.get(p.category).push(p);
   });
+  return groups;
+}
+
+function createRow(p) {
+  const tr = document.createElement('tr');
+  tr.dataset.id = p.id;
+
+  const tdPhrase = document.createElement('td');
+  const phraseWrap = document.createElement('div');
+  phraseWrap.className = 'phrase-word';
+  phraseWrap.appendChild(createSpeakButton(p.phrase, 'phrase'));
+  const phraseTxt = document.createElement('span');
+  phraseTxt.textContent = p.phrase;
+  phraseWrap.appendChild(phraseTxt);
+  tdPhrase.appendChild(phraseWrap);
+  tdPhrase.appendChild(Object.assign(document.createElement('span'), {
+    className: 'category-tag',
+    textContent: p.category,
+  }));
+
+  const tdMeaning = document.createElement('td');
+  tdMeaning.textContent = p.meaning;
+
+  const tdWhen = document.createElement('td');
+  const whenWrap = document.createElement('div');
+  whenWrap.className = 'phrase-word';
+  whenWrap.appendChild(createSpeakButton(p.whenToUse, 'example'));
+  const whenTxt = document.createElement('span');
+  whenTxt.textContent = p.whenToUse;
+  whenWrap.appendChild(whenTxt);
+  tdWhen.appendChild(whenWrap);
+
+  tr.appendChild(tdPhrase);
+  tr.appendChild(tdMeaning);
+  tr.appendChild(tdWhen);
+  return tr;
+}
+
+function createGroupHeader(category, count) {
+  const tr = document.createElement('tr');
+  tr.className = 'group-header-row';
+  const td = document.createElement('td');
+  td.colSpan = 3;
+  const tag = document.createElement('span');
+  tag.className = 'category-tag group-tag';
+  tag.textContent = category;
+  td.appendChild(tag);
+  const countTxt = document.createElement('span');
+  countTxt.className = 'group-count';
+  countTxt.textContent = `${count} phrases`;
+  td.appendChild(countTxt);
+  tr.appendChild(td);
+  return tr;
+}
+
+function renderTable(phrases, mode = viewMode) {
+  el.tbody.innerHTML = '';
+  if (mode === 'all') {
+    const groups = groupByCategory(phrases);
+    for (const [category, items] of groups) {
+      el.tbody.appendChild(createGroupHeader(category, items.length));
+      items.forEach((p) => el.tbody.appendChild(createRow(p)));
+    }
+  } else {
+    phrases.forEach((p) => el.tbody.appendChild(createRow(p)));
+  }
 }
 
 function renderPoolStats() {
@@ -234,20 +276,41 @@ function populateVoices() {
   }
 }
 
+function setPlayingControls(isPlaying) {
+  el.btnPlayAll.disabled = isPlaying;
+  el.btnStop.disabled = !isPlaying;
+  el.btnPause.disabled = !isPlaying;
+  el.btnPrev.disabled = !isPlaying;
+  el.btnNext.disabled = !isPlaying;
+  if (isPlaying) {
+    el.btnPause.textContent = '⏸ Pause';
+  } else {
+    el.btnPause.textContent = '⏸ Pause';
+  }
+}
+
+function updatePauseButton() {
+  el.btnPause.textContent = speechService.isPaused ? '▶ Play' : '⏸ Pause';
+}
+
 function setupPlayStatus() {
   speechService.onProgress = (step) => {
     highlightRow(step.id);
+    const total = currentPhrases.length;
     el.playStatus.textContent = step.type === 'phrase'
-      ? `Playing phrase ${step.index + 1} of ${cards.getTotal()}...`
-      : `Playing example ${step.index + 1} of ${cards.getTotal()}...`;
+      ? `Playing phrase ${step.index + 1} of ${total}...`
+      : `Playing example ${step.index + 1} of ${total}...`;
     el.playStatus.classList.add('active');
   };
   speechService.onComplete = () => {
     el.playStatus.textContent = '';
     el.playStatus.classList.remove('active');
-    el.btnPlayAll.disabled = false;
-    el.btnStop.disabled = true;
+    setPlayingControls(false);
+    updatePauseButton();
     clearActiveRow();
+  };
+  speechService.onStateChange = () => {
+    updatePauseButton();
   };
 }
 
@@ -255,11 +318,32 @@ function generateAndRender() {
   clearActiveRow();
   speechService.stop();
   const batch = phraseEngine.generateBatch(10);
+  currentPhrases = batch;
+  viewMode = 'batch';
   cards.setPhrases(batch);
-  renderTable(batch);
+  renderTable(batch, 'batch');
   renderFlashcard();
   renderPoolStats();
   el.playStatus.textContent = '';
+  setPlayingControls(false);
+  updatePauseButton();
+}
+
+function viewAllAndRender() {
+  clearActiveRow();
+  speechService.stop();
+  const all = phraseEngine.getPoolStats();
+  const phrases = phraseEngine.viewAll();
+  currentPhrases = phrases;
+  viewMode = 'all';
+  cards.setPhrases(phrases);
+  renderTable(phrases, 'all');
+  renderFlashcard();
+  renderPoolStats();
+  el.playStatus.textContent = `Showing all ${phrases.length} phrases in the bank, grouped by category.`;
+  el.playStatus.classList.add('active');
+  setPlayingControls(false);
+  updatePauseButton();
 }
 
 function init() {
@@ -278,27 +362,42 @@ function init() {
 
   el.btnGenerate.addEventListener('click', generateAndRender);
   el.btnTryNow.addEventListener('click', generateAndRender);
+  el.btnViewAll.addEventListener('click', viewAllAndRender);
 
   el.btnPlayAll.addEventListener('click', () => {
-    const batch = phraseEngine.getCurrentBatch();
-    if (!batch.length) {
+    if (!currentPhrases.length) {
       generateAndRender();
     }
-    const phrases = phraseEngine.getCurrentBatch();
-    if (!phrases.length) return;
+    if (!currentPhrases.length) return;
     clearActiveRow();
-    el.btnPlayAll.disabled = true;
-    el.btnStop.disabled = false;
-    speechService.playAll(phrases);
+    speechService.playAll(currentPhrases);
+    setPlayingControls(true);
+    updatePauseButton();
   });
 
   el.btnStop.addEventListener('click', () => {
     speechService.stop();
-    el.btnPlayAll.disabled = false;
-    el.btnStop.disabled = true;
+    setPlayingControls(false);
+    updatePauseButton();
     el.playStatus.textContent = '';
   });
 
+  el.btnPause.addEventListener('click', () => {
+    speechService.togglePause();
+    updatePauseButton();
+  });
+
+  el.btnPrev.addEventListener('click', () => {
+    speechService.previous();
+    updatePauseButton();
+  });
+
+  el.btnNext.addEventListener('click', () => {
+    speechService.next();
+    updatePauseButton();
+  });
+
+  setPlayingControls(false);
   generateAndRender();
 }
 
