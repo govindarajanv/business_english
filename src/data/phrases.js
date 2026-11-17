@@ -353,4 +353,10 @@ export const ALL_PHRASES = [
   { id: 'face-time', phrase: 'Face time', meaning: 'Physical presence or direct interaction', whenToUse: 'A little face time with the client builds trust.', category: 'Communication' },
   { id: 'fly-under-the-radar', phrase: 'Fly under the radar', meaning: 'To remain unnoticed or inconspicuous', whenToUse: 'We flew under the radar until the feature was stable.', category: 'Leadership' },
   { id: 'feasibility', phrase: 'Feasibility', meaning: 'Whether something can realistically be done', whenToUse: 'We are assessing the feasibility of the new architecture.', category: 'Strategy' },
+  { id: 'wrap-my-head-around', phrase: 'Wrap my head around', meaning: 'To understand something that is complex or unfamiliar', whenToUse: 'I am still wrapping my head around the new software, but I am getting there.', category: 'Communication' },
+  { id: 'bring-your-a-game', phrase: "Bring your A game", meaning: 'To perform at your highest level with full preparation and focus', whenToUse: "It's time to bring your A game to the big presentation.", category: 'Leadership' },
+  { id: 'ahead-of-the-curve', phrase: 'Ahead of the curve', meaning: 'To be more advanced or innovative than competitors', whenToUse: 'Our company is ahead of the curve when it comes to adopting green technologies.', category: 'Strategy' },
+  { id: 'kick-off', phrase: 'Kick off', meaning: 'To start an event, project, or meeting', whenToUse: 'We will kick off the training session at 10am sharp.', category: 'Meetings' },
+  { id: 'gain-momentum', phrase: 'Gain momentum', meaning: 'To gradually become faster or more successful', whenToUse: 'The new marketing strategy has started to gain momentum and attract more customers.', category: 'Strategy' },
+  { id: 'start-from-scratch', phrase: 'Start from scratch', meaning: 'To begin from the very beginning without using previous work', whenToUse: 'We will have to start from scratch with the new website design.', category: 'Strategy' },
 ];
