@@ -4,7 +4,7 @@ import Flashcards from './modules/flashcards.js';
 import { getItem, setItem, removeItem, STORAGE_KEYS } from './utils/storage.js';
 import { EMAIL_PHRASES } from './data/emailPhrases.js';
 
-const VERSION = 'v1.20.1';
+const VERSION = 'v1.20.2';
 
 const el = {
   version: document.getElementById('app-version'),
