@@ -139,6 +139,26 @@ class SpeechService {
     this._playStep();
   }
 
+  // Plays a pre-flattened queue of steps. Each step is
+  // { type: 'phrase'|'example', text, id, index }. Used for content that is not
+  // stored in the idiom shape (e.g. email/conversational phrases that have a
+  // phrase + note but no separate example sentence).
+  playFlattened(steps, { onProgress, onComplete, onStateChange } = {}) {
+    if (onProgress) this.onProgress = onProgress;
+    if (onComplete) this.onComplete = onComplete;
+    if (onStateChange) this.onStateChange = onStateChange;
+
+    const synth = getSpeechSynthesis();
+    if (synth) synth.cancel();
+
+    this.queue = steps;
+    this.isPlaying = true;
+    this.isPaused = false;
+    this.currentStep = 0;
+    this._emitState();
+    this._playStep();
+  }
+
   _playStep() {
     const step = this.queue[this.currentStep];
     if (!step) {

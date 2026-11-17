@@ -13,7 +13,7 @@
         <h1 class="app-title">Business English Tutor</h1>
         <div class="version-tag">
           <span class="version-label">Version</span>
-          <span class="version-badge" id="app-version">v1.18.0</span>
+          <span class="version-badge" id="app-version">v1.19.0</span>
         </div>
         <p class="app-subtitle">Master US Corporate Idioms, Business Phrases &amp; Contextual Usage</p>
       </div>
@@ -62,6 +62,17 @@
             <tbody id="phrase-tbody"></tbody>
           </table>
         </div>
+      </section>
+
+      <section class="table-section email-section" aria-label="Conversational &amp; Email phrases">
+        <h2 class="section-title">Conversational &amp; Email phrases</h2>
+        <p class="pool-stats">Purpose-built phrases for professional emails and conversations, grouped by use case. Tap a group to expand it, use 🔊 to hear a phrase, or hit &ldquo;Play All&rdquo; to hear every phrase and its note in order.</p>
+        <div class="bookmarks-controls">
+          <button id="btn-play-email" class="btn btn-accent" type="button">▶ Play All</button>
+          <span id="email-count" class="group-count"></span>
+          <span id="email-play-status" class="play-status" role="status" aria-live="polite"></span>
+        </div>
+        <div id="email-groups" class="email-groups"></div>
       </section>
 
       <section class="table-section bookmarks-section" aria-label="Bookmarks">
@@ -125,7 +136,7 @@
 
     <footer class="app-footer">
       <span>Business English Tutor</span>
-      <span class="footer-version" id="footer-version">v1.18.0</span>
+      <span class="footer-version" id="footer-version">v1.19.0</span>
     </footer>
 
     <script type="module" src="./src/main.js"></script>

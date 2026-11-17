@@ -12,6 +12,7 @@ An interactive, client-side **US Business English** learning web application. It
 - **Playback controls** — While playing, use **Pause/Play**, **Prev**, and **Next** to move through phrases; **Stop** ends playback.
 - **Voice & speed controls** — Choose a US English voice and adjust playback speed (0.5x–2.0x). Defaults are set on page load and remembered.
 - **Revision flashcards** — A 3D flip-card deck at the bottom to revise: flip, Previous/Next, Shuffle, and Mark as Mastered.
+- **Conversational & Email phrases** — A purpose-categorized section (below Phrase Bank) with professional email and conversation phrases, grouped into expandable/collapsible use-case sub-sections with per-phrase 🔊 playback and a **Play All** button.
 
 ## Getting Started
 

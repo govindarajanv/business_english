@@ -24,6 +24,7 @@ The generated batch must contain **10 phrases that do NOT exist anywhere in the 
 - **Bookmarks** — each phrase row has a **★** button to save it; bookmarked phrases appear in a dedicated **Bookmarks** table with a **▶ Play Bookmarks** button (reuses the main playback controls) and a **Clear All** button. Bookmarks persist in `localStorage`.
 - **Voice and speed controls** so you can choose the voice, speed, etc. Sensible defaults are set when the page is loaded.
 - A **flashcards** section at the bottom to help with revision (3D flip cards, Next/Prev, Shuffle, Mark as Mastered).
+- A **"Conversational & Email phrases"** section (below Phrase Bank) with purpose-categorized email/conversation phrases in `src/data/emailPhrases.js` (`EMAIL_PHRASES`, currently 77 phrases). Rendered as grouped, **expandable/collapsible** sub-sections (by use-case category) with a **🔊 button on every phrase**, a per-group count, and a **▶ Play All** button that plays each phrase and its note in sequence (shares the main playback controls).
 - All content is **US English** (spelling, accent, and `en-US` speech voices).
 
 ## Versioning

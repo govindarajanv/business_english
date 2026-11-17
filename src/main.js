@@ -2,8 +2,9 @@ import { phraseEngine } from './modules/phraseEngine.js';
 import { speechService } from './modules/speechService.js';
 import Flashcards from './modules/flashcards.js';
 import { getItem, setItem, removeItem, STORAGE_KEYS } from './utils/storage.js';
+import { EMAIL_PHRASES } from './data/emailPhrases.js';
 
-const VERSION = 'v1.18.0';
+const VERSION = 'v1.19.0';
 
 const el = {
   version: document.getElementById('app-version'),
@@ -27,6 +28,10 @@ const el = {
   bmPlayStatus: document.getElementById('bookmark-play-status'),
   btnPlayBookmarks: document.getElementById('btn-play-bookmarks'),
   btnClearBookmarks: document.getElementById('btn-clear-bookmarks'),
+  btnPlayEmail: document.getElementById('btn-play-email'),
+  emailCount: document.getElementById('email-count'),
+  emailPlayStatus: document.getElementById('email-play-status'),
+  emailGroups: document.getElementById('email-groups'),
   fcPrev: document.getElementById('fc-prev'),
   fcNext: document.getElementById('fc-next'),
   fcFlip: document.getElementById('fc-flip'),
@@ -46,6 +51,7 @@ let activeSpeakBtn = null;
 let currentPhrases = [];
 let viewMode = 'batch'; // 'batch' | 'all'
 let bookmarks = new Set();
+let playSource = 'main'; // 'main' | 'bookmarks' | 'email'
 
 function setVersion() {
   el.version.textContent = VERSION;
@@ -268,8 +274,107 @@ function playBookmarks() {
     el.bmPlayStatus.textContent = 'Add a bookmark first, then play.';
     return;
   }
+  playSource = 'bookmarks';
   el.bmPlayStatus.textContent = '';
   speechService.playAll(list);
+  setPlayingControls(true);
+  updatePauseButton();
+}
+
+function createEmailRow(p) {
+  const row = document.createElement('div');
+  row.className = 'email-row';
+  row.dataset.id = p.id;
+
+  const text = document.createElement('div');
+  text.className = 'email-row-text';
+  const phraseEl = document.createElement('strong');
+  phraseEl.className = 'email-phrase';
+  phraseEl.textContent = p.phrase;
+  text.appendChild(phraseEl);
+  const meaningEl = document.createElement('span');
+  meaningEl.className = 'email-meaning';
+  meaningEl.textContent = p.meaning;
+  text.appendChild(meaningEl);
+
+  row.appendChild(createSpeakButton(p.phrase, p.id));
+  row.appendChild(text);
+  return row;
+}
+
+function renderEmailSection() {
+  el.emailGroups.innerHTML = '';
+  const groups = groupByCategory(EMAIL_PHRASES);
+  el.emailCount.textContent = `${EMAIL_PHRASES.length} phrases`;
+
+  for (const [category, items] of groups) {
+    const sub = document.createElement('div');
+    sub.className = 'email-group';
+
+    const header = document.createElement('button');
+    header.type = 'button';
+    header.className = 'email-group-header';
+    header.setAttribute('aria-expanded', 'true');
+
+    const toggle = document.createElement('span');
+    toggle.className = 'group-toggle';
+    toggle.textContent = '▾';
+    header.appendChild(toggle);
+
+    const tag = document.createElement('span');
+    tag.className = 'category-tag group-tag';
+    tag.textContent = category;
+    header.appendChild(tag);
+
+    const countTxt = document.createElement('span');
+    countTxt.className = 'group-count';
+    countTxt.textContent = `${items.length} phrases`;
+    header.appendChild(countTxt);
+
+    const list = document.createElement('div');
+    list.className = 'email-group-list';
+    items.forEach((p) => list.appendChild(createEmailRow(p)));
+
+    const setExpanded = (expanded) => {
+      sub.classList.toggle('collapsed', !expanded);
+      header.setAttribute('aria-expanded', String(expanded));
+      toggle.textContent = expanded ? '▾' : '▸';
+    };
+    header.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setExpanded(sub.classList.contains('collapsed'));
+    });
+
+    sub.appendChild(header);
+    sub.appendChild(list);
+    el.emailGroups.appendChild(sub);
+  }
+}
+
+function clearEmailActive() {
+  el.emailGroups.querySelectorAll('.email-row.is-active').forEach((r) => {
+    r.classList.remove('is-active');
+  });
+}
+
+function highlightEmailStep(id) {
+  clearEmailActive();
+  const row = el.emailGroups.querySelector(`.email-row[data-id="${id}"]`);
+  if (row) row.classList.add('is-active');
+}
+
+function playEmail() {
+  clearActiveRow();
+  clearEmailActive();
+  speechService.stop();
+  if (!EMAIL_PHRASES.length) return;
+  playSource = 'email';
+  el.emailPlayStatus.textContent = '';
+  const steps = EMAIL_PHRASES.flatMap((p, i) => [
+    { type: 'phrase', text: p.phrase, id: p.id, index: i },
+    { type: 'example', text: p.meaning, id: p.id, index: i },
+  ]);
+  speechService.playFlattened(steps);
   setPlayingControls(true);
   updatePauseButton();
 }
@@ -419,6 +524,15 @@ function updatePauseButton() {
 
 function setupPlayStatus() {
   speechService.onProgress = (step) => {
+    if (playSource === 'email') {
+      clearActiveRow();
+      highlightEmailStep(step.id);
+      el.emailPlayStatus.textContent = `Playing ${step.index + 1} of ${EMAIL_PHRASES.length}...`;
+      el.emailPlayStatus.classList.add('active');
+      el.playStatus.textContent = '';
+      el.playStatus.classList.remove('active');
+      return;
+    }
     highlightRow(step.id);
     const total = currentPhrases.length;
     el.playStatus.textContent = step.type === 'phrase'
@@ -429,9 +543,13 @@ function setupPlayStatus() {
   speechService.onComplete = () => {
     el.playStatus.textContent = '';
     el.playStatus.classList.remove('active');
+    el.emailPlayStatus.textContent = '';
+    el.emailPlayStatus.classList.remove('active');
     setPlayingControls(false);
     updatePauseButton();
     clearActiveRow();
+    clearEmailActive();
+    playSource = 'main';
   };
   speechService.onStateChange = () => {
     updatePauseButton();
@@ -498,6 +616,8 @@ function init() {
     renderBookmarks();
   });
 
+  el.btnPlayEmail.addEventListener('click', playEmail);
+
   el.btnPlayAll.addEventListener('click', () => {
     if (!currentPhrases.length) {
       generateAndRender();
@@ -534,6 +654,7 @@ function init() {
   setPlayingControls(false);
   generateAndRender();
   renderBookmarks();
+  renderEmailSection();
 }
 
 init();
