@@ -4,7 +4,7 @@ import Flashcards from './modules/flashcards.js';
 import { getItem, setItem, removeItem, STORAGE_KEYS } from './utils/storage.js';
 import { EMAIL_PHRASES } from './data/emailPhrases.js';
 
-const VERSION = 'v1.20.0';
+const VERSION = 'v1.20.1';
 
 const el = {
   version: document.getElementById('app-version'),
@@ -351,16 +351,16 @@ function renderEmailSection() {
 
   for (const [category, items] of groups) {
     const sub = document.createElement('div');
-    sub.className = 'email-group';
+    sub.className = 'email-group collapsed';
 
     const header = document.createElement('button');
     header.type = 'button';
     header.className = 'email-group-header';
-    header.setAttribute('aria-expanded', 'true');
+    header.setAttribute('aria-expanded', 'false');
 
     const toggle = document.createElement('span');
     toggle.className = 'group-toggle';
-    toggle.textContent = '▾';
+    toggle.textContent = '▸';
     header.appendChild(toggle);
 
     const tag = document.createElement('span');
