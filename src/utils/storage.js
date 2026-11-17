@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   seenIds: 'businessEnglish.seenIds',
   voiceName: 'businessEnglish.voiceName',
   rate: 'businessEnglish.rate',
+  bookmarkedIds: 'businessEnglish.bookmarkedIds',
 };
 
 export function getItem(key, fallback = null) {

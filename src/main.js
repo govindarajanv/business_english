@@ -1,9 +1,9 @@
 import { phraseEngine } from './modules/phraseEngine.js';
 import { speechService } from './modules/speechService.js';
 import Flashcards from './modules/flashcards.js';
-import { getItem, STORAGE_KEYS } from './utils/storage.js';
+import { getItem, setItem, removeItem, STORAGE_KEYS } from './utils/storage.js';
 
-const VERSION = 'v1.17.0';
+const VERSION = 'v1.18.0';
 
 const el = {
   version: document.getElementById('app-version'),
@@ -22,6 +22,11 @@ const el = {
   rateValue: document.getElementById('rate-value'),
   poolStats: document.getElementById('pool-stats'),
   tbody: document.getElementById('phrase-tbody'),
+  bmTbody: document.getElementById('bookmark-tbody'),
+  bmCount: document.getElementById('bookmark-count'),
+  bmPlayStatus: document.getElementById('bookmark-play-status'),
+  btnPlayBookmarks: document.getElementById('btn-play-bookmarks'),
+  btnClearBookmarks: document.getElementById('btn-clear-bookmarks'),
   fcPrev: document.getElementById('fc-prev'),
   fcNext: document.getElementById('fc-next'),
   fcFlip: document.getElementById('fc-flip'),
@@ -40,6 +45,7 @@ let cards = null;
 let activeSpeakBtn = null;
 let currentPhrases = [];
 let viewMode = 'batch'; // 'batch' | 'all'
+let bookmarks = new Set();
 
 function setVersion() {
   el.version.textContent = VERSION;
@@ -89,6 +95,20 @@ function createRow(p) {
   const tr = document.createElement('tr');
   tr.dataset.id = p.id;
 
+  const tdStar = document.createElement('td');
+  const starBtn = document.createElement('button');
+  starBtn.type = 'button';
+  starBtn.className = 'bookmark-btn';
+  starBtn.textContent = '★';
+  starBtn.setAttribute('aria-label', bookmarks.has(p.id) ? `Remove ${p.phrase} from bookmarks` : `Bookmark ${p.phrase}`);
+  starBtn.classList.toggle('is-bookmarked', bookmarks.has(p.id));
+  starBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleBookmark(p.id);
+  });
+  tdStar.appendChild(starBtn);
+  tr.appendChild(tdStar);
+
   const tdPhrase = document.createElement('td');
   const phraseWrap = document.createElement('div');
   phraseWrap.className = 'phrase-word';
@@ -123,17 +143,53 @@ function createRow(p) {
 function createGroupHeader(category, count) {
   const tr = document.createElement('tr');
   tr.className = 'group-header-row';
+  tr.setAttribute('role', 'button');
+  tr.setAttribute('aria-expanded', 'true');
+  tr.tabIndex = 0;
+
   const td = document.createElement('td');
-  td.colSpan = 3;
+  td.colSpan = 4;
+
+  const toggle = document.createElement('span');
+  toggle.className = 'group-toggle';
+  toggle.textContent = '▾';
+
   const tag = document.createElement('span');
   tag.className = 'category-tag group-tag';
   tag.textContent = category;
-  td.appendChild(tag);
+
   const countTxt = document.createElement('span');
   countTxt.className = 'group-count';
   countTxt.textContent = `${count} phrases`;
+
+  td.appendChild(toggle);
+  td.appendChild(tag);
   td.appendChild(countTxt);
   tr.appendChild(td);
+
+  const setExpanded = (expanded) => {
+    tr.classList.toggle('collapsed', !expanded);
+    tr.setAttribute('aria-expanded', String(expanded));
+    toggle.textContent = expanded ? '▾' : '▸';
+    let node = tr.nextElementSibling;
+    while (node && !node.classList.contains('group-header-row')) {
+      node.classList.toggle('group-hidden', !expanded);
+      node = node.nextElementSibling;
+    }
+  };
+
+  const toggleCollapse = (e) => {
+    e.stopPropagation();
+    setExpanded(tr.classList.contains('collapsed'));
+  };
+  tr.addEventListener('click', toggleCollapse);
+  tr.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleCollapse(e);
+    }
+  });
+
   return tr;
 }
 
@@ -148,6 +204,74 @@ function renderTable(phrases, mode = viewMode) {
   } else {
     phrases.forEach((p) => el.tbody.appendChild(createRow(p)));
   }
+}
+
+const bookmarkedPhrases = () => phraseEngine.viewAll().filter((p) => bookmarks.has(p.id));
+
+function persistBookmarks() {
+  setItem(STORAGE_KEYS.bookmarkedIds, [...bookmarks]);
+}
+
+function toggleBookmark(id) {
+  if (bookmarks.has(id)) {
+    bookmarks.delete(id);
+  } else {
+    bookmarks.add(id);
+  }
+  persistBookmarks();
+  const phrase = phraseEngine.viewAll().find((p) => p.id === id);
+  const label = phrase ? phrase.phrase : '';
+  document.querySelectorAll('.bookmark-btn').forEach((btn) => {
+    const row = btn.closest('tr');
+    if (row && row.dataset.id === id) {
+      const isBookmarked = bookmarks.has(id);
+      btn.classList.toggle('is-bookmarked', isBookmarked);
+      btn.setAttribute('aria-label', isBookmarked ? `Remove ${label} from bookmarks` : `Bookmark ${label}`);
+    }
+  });
+  renderBookmarks();
+}
+
+function renderBookmarkTableRows() {
+  const list = bookmarkedPhrases();
+  el.bmTbody.innerHTML = '';
+  if (!list.length) {
+    const tr = document.createElement('tr');
+    tr.className = 'empty-row';
+    const td = document.createElement('td');
+    td.colSpan = 4;
+    td.textContent = 'No bookmarked phrases yet. Star a phrase in the Phrase Bank above to save it here.';
+    tr.appendChild(td);
+    el.bmTbody.appendChild(tr);
+  } else {
+    list.forEach((p) => el.bmTbody.appendChild(createRow(p)));
+  }
+  el.bmCount.textContent = `${list.length} phrases`;
+}
+
+function renderBookmarkPlayStatus() {
+  el.bmPlayStatus.textContent = bookmarks.size
+    ? `${bookmarks.size} bookmarked phrase${bookmarks.size === 1 ? '' : 's'} ready to review.`
+    : 'No bookmarks yet.';
+}
+
+function renderBookmarks() {
+  renderBookmarkTableRows();
+  renderBookmarkPlayStatus();
+}
+
+function playBookmarks() {
+  clearActiveRow();
+  speechService.stop();
+  const list = bookmarkedPhrases();
+  if (!list.length) {
+    el.bmPlayStatus.textContent = 'Add a bookmark first, then play.';
+    return;
+  }
+  el.bmPlayStatus.textContent = '';
+  speechService.playAll(list);
+  setPlayingControls(true);
+  updatePauseButton();
 }
 
 function renderPoolStats() {
@@ -351,6 +475,8 @@ function init() {
   phraseEngine.init();
   speechService.init();
 
+  bookmarks = new Set(getItem(STORAGE_KEYS.bookmarkedIds, []) || []);
+
   cards = new Flashcards([]);
   setupSettings();
   setupFlashcardControls();
@@ -363,6 +489,14 @@ function init() {
   el.btnGenerate.addEventListener('click', generateAndRender);
   el.btnTryNow.addEventListener('click', generateAndRender);
   el.btnViewAll.addEventListener('click', viewAllAndRender);
+
+  el.btnPlayBookmarks.addEventListener('click', playBookmarks);
+  el.btnClearBookmarks.addEventListener('click', () => {
+    bookmarks.clear();
+    persistBookmarks();
+    renderTable(currentPhrases, viewMode);
+    renderBookmarks();
+  });
 
   el.btnPlayAll.addEventListener('click', () => {
     if (!currentPhrases.length) {
@@ -399,6 +533,7 @@ function init() {
 
   setPlayingControls(false);
   generateAndRender();
+  renderBookmarks();
 }
 
 init();

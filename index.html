@@ -13,7 +13,7 @@
         <h1 class="app-title">Business English Tutor</h1>
         <div class="version-tag">
           <span class="version-label">Version</span>
-          <span class="version-badge" id="app-version">v1.17.0</span>
+          <span class="version-badge" id="app-version">v1.18.0</span>
         </div>
         <p class="app-subtitle">Master US Corporate Idioms, Business Phrases &amp; Contextual Usage</p>
       </div>
@@ -53,12 +53,36 @@
           <table class="phrase-table" id="phrase-table">
             <thead>
               <tr>
+                <th scope="col" class="col-star"></th>
                 <th scope="col" class="col-phrase">Phrase</th>
                 <th scope="col" class="col-meaning">Meaning</th>
                 <th scope="col" class="col-when">When to Use It</th>
               </tr>
             </thead>
             <tbody id="phrase-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="table-section bookmarks-section" aria-label="Bookmarks">
+        <h2 class="section-title">Bookmarks <span id="bookmark-count" class="group-count">0 phrases</span></h2>
+        <p class="pool-stats">Star phrases in the Phrase Bank above to collect them here for easy review. Hit &ldquo;Play Bookmarks&rdquo; to hear every saved phrase and example in order.</p>
+        <div class="bookmarks-controls">
+          <button id="btn-play-bookmarks" class="btn btn-accent" type="button">▶ Play Bookmarks</button>
+          <button id="btn-clear-bookmarks" class="btn btn-ghost" type="button">Clear All</button>
+          <span id="bookmark-play-status" class="play-status" role="status" aria-live="polite"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="phrase-table" id="bookmark-table">
+            <thead>
+              <tr>
+                <th scope="col" class="col-star"></th>
+                <th scope="col" class="col-phrase">Phrase</th>
+                <th scope="col" class="col-meaning">Meaning</th>
+                <th scope="col" class="col-when">When to Use It</th>
+              </tr>
+            </thead>
+            <tbody id="bookmark-tbody"></tbody>
           </table>
         </div>
       </section>
@@ -101,7 +125,7 @@
 
     <footer class="app-footer">
       <span>Business English Tutor</span>
-      <span class="footer-version" id="footer-version">v1.17.0</span>
+      <span class="footer-version" id="footer-version">v1.18.0</span>
     </footer>
 
     <script type="module" src="./src/main.js"></script>

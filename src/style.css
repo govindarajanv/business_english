@@ -224,6 +224,85 @@ body {
   margin-left: 8px;
 }
 
+/* Collapsible group headers */
+.group-header-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.group-header-row:hover td {
+  background: #e0e7ff;
+}
+
+.group-header-row:focus-visible {
+  outline: 2px solid var(--color-primary, #2563eb);
+  outline-offset: -2px;
+}
+
+.group-toggle {
+  display: inline-block;
+  width: 1.1rem;
+  margin-right: 6px;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  text-align: center;
+  transition: transform 0.15s ease;
+}
+
+.group-header-row.collapsed .group-toggle {
+  transform: rotate(-90deg);
+}
+
+.group-hidden {
+  display: none;
+}
+
+/* Bookmark column + buttons */
+.col-star {
+  width: 44px;
+}
+
+.bookmark-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 4px;
+  opacity: 0.45;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  color: var(--color-muted);
+}
+
+.bookmark-btn:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.bookmark-btn.is-bookmarked {
+  opacity: 1;
+  color: #f59e0b;
+}
+
+.bookmarks-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.bookmarks-controls .play-status {
+  margin-top: 0;
+}
+
+.bookmarks-section tbody.empty-row td {
+  text-align: left;
+  color: var(--color-muted);
+  font-style: italic;
+  padding: 16px;
+}
+
 /* Sections */
 .section-title {
   font-size: 1.25rem;
