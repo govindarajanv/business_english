@@ -41,20 +41,52 @@ body {
 .header-container {
   max-width: 1080px;
   margin: 0 auto;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  min-width: 0;
+}
+
+.brand-logo {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.brand-text {
+  min-width: 0;
 }
 
 .app-title {
   margin: 0;
-  font-size: 1.9rem;
+  font-size: 2.1rem;
   letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.app-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  opacity: 0.85;
+  font-weight: 400;
 }
 
 .version-tag {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin: 8px 0 0;
+  margin: 0;
 }
 
 .version-label {
@@ -74,12 +106,6 @@ body {
   border-radius: 999px;
 }
 
-.app-subtitle {
-  margin: 10px 0 0;
-  font-size: 0.95rem;
-  opacity: 0.85;
-}
-
 .app-main {
   max-width: 1080px;
   margin: 0 auto;
@@ -94,6 +120,57 @@ body {
   box-shadow: var(--shadow-sm);
   padding: 18px;
   margin-bottom: 28px;
+}
+
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.search-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-muted);
+  position: absolute;
+  left: 12px;
+  pointer-events: none;
+}
+
+#search-input {
+  width: 100%;
+  padding: 10px 40px;
+  font-size: 0.95rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+#search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.search-clear:hover {
+  background: var(--color-border);
+  color: var(--color-text);
 }
 
 .controls-primary {
@@ -303,6 +380,13 @@ body {
   padding: 16px;
 }
 
+.phrase-table .empty-row td {
+  text-align: left;
+  color: var(--color-muted);
+  font-style: italic;
+  padding: 16px;
+}
+
 /* Conversational & Email phrases section */
 .email-groups {
   display: flex;
@@ -397,6 +481,15 @@ body {
 .email-meaning {
   font-size: 0.85rem;
   color: var(--color-muted);
+}
+
+.email-empty {
+  padding: 16px;
+  color: var(--color-muted);
+  font-style: italic;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
 }
 
 /* Sections */

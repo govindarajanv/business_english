@@ -13,6 +13,8 @@ An interactive, client-side **US Business English** learning web application. It
 - **Voice & speed controls** — Choose a US English voice and adjust playback speed (0.5x–2.0x). Defaults are set on page load and remembered.
 - **Revision flashcards** — A 3D flip-card deck at the bottom to revise: flip, Previous/Next, Shuffle, and Mark as Mastered.
 - **Conversational & Email phrases** — A purpose-categorized section (below Phrase Bank) with professional email and conversation phrases, grouped into expandable/collapsible use-case sub-sections with per-phrase 🔊 playback and a **Play All** button.
+- **Search** — A global search box in the controls filters live across the full phrase bank, bookmarks, and the email/conversation section (matches phrase, meaning, category, and usage), with a clear button and "no results" states.
+- **BET branding** — The app is titled **"BET" (Business English Tutor)** with a professional logo (inline SVG briefcase/speech-bubble mark) in the header and as the favicon.
 
 ## Getting Started
 

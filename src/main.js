@@ -4,7 +4,7 @@ import Flashcards from './modules/flashcards.js';
 import { getItem, setItem, removeItem, STORAGE_KEYS } from './utils/storage.js';
 import { EMAIL_PHRASES } from './data/emailPhrases.js';
 
-const VERSION = 'v1.19.0';
+const VERSION = 'v1.20.0';
 
 const el = {
   version: document.getElementById('app-version'),
@@ -32,6 +32,8 @@ const el = {
   emailCount: document.getElementById('email-count'),
   emailPlayStatus: document.getElementById('email-play-status'),
   emailGroups: document.getElementById('email-groups'),
+  searchInput: document.getElementById('search-input'),
+  btnSearchClear: document.getElementById('btn-search-clear'),
   fcPrev: document.getElementById('fc-prev'),
   fcNext: document.getElementById('fc-next'),
   fcFlip: document.getElementById('fc-flip'),
@@ -52,11 +54,12 @@ let currentPhrases = [];
 let viewMode = 'batch'; // 'batch' | 'all'
 let bookmarks = new Set();
 let playSource = 'main'; // 'main' | 'bookmarks' | 'email'
+let searchQuery = '';
 
 function setVersion() {
   el.version.textContent = VERSION;
   el.footerVersion.textContent = VERSION;
-  document.title = `Business English Tutor - ${VERSION}`;
+  document.title = `BET — Business English Tutor (${VERSION})`;
 }
 
 function clearActiveRow() {
@@ -95,6 +98,21 @@ function groupByCategory(phrases) {
     groups.get(p.category).push(p);
   });
   return groups;
+}
+
+function matchesPhrase(item, query) {
+  const q = query.toLowerCase();
+  const haystack = [
+    item.phrase,
+    item.meaning,
+    item.category,
+    item.whenToUse,
+  ].filter(Boolean).join(' ').toLowerCase();
+  return haystack.includes(q);
+}
+
+function filterForSearch(list) {
+  return searchQuery ? list.filter((p) => matchesPhrase(p, searchQuery)) : list;
 }
 
 function createRow(p) {
@@ -201,14 +219,25 @@ function createGroupHeader(category, count) {
 
 function renderTable(phrases, mode = viewMode) {
   el.tbody.innerHTML = '';
+  const list = filterForSearch(phrases);
+  if (!list.length) {
+    const tr = document.createElement('tr');
+    tr.className = 'empty-row';
+    const td = document.createElement('td');
+    td.colSpan = 4;
+    td.textContent = searchQuery ? `No phrases match "${searchQuery}".` : 'No phrases to display.';
+    tr.appendChild(td);
+    el.tbody.appendChild(tr);
+    return;
+  }
   if (mode === 'all') {
-    const groups = groupByCategory(phrases);
+    const groups = groupByCategory(list);
     for (const [category, items] of groups) {
       el.tbody.appendChild(createGroupHeader(category, items.length));
       items.forEach((p) => el.tbody.appendChild(createRow(p)));
     }
   } else {
-    phrases.forEach((p) => el.tbody.appendChild(createRow(p)));
+    list.forEach((p) => el.tbody.appendChild(createRow(p)));
   }
 }
 
@@ -239,20 +268,22 @@ function toggleBookmark(id) {
 }
 
 function renderBookmarkTableRows() {
-  const list = bookmarkedPhrases();
+  const list = filterForSearch(bookmarkedPhrases());
   el.bmTbody.innerHTML = '';
   if (!list.length) {
     const tr = document.createElement('tr');
     tr.className = 'empty-row';
     const td = document.createElement('td');
     td.colSpan = 4;
-    td.textContent = 'No bookmarked phrases yet. Star a phrase in the Phrase Bank above to save it here.';
+    td.textContent = searchQuery
+      ? `No bookmarked phrases match "${searchQuery}".`
+      : 'No bookmarked phrases yet. Star a phrase in the Phrase Bank above to save it here.';
     tr.appendChild(td);
     el.bmTbody.appendChild(tr);
   } else {
     list.forEach((p) => el.bmTbody.appendChild(createRow(p)));
   }
-  el.bmCount.textContent = `${list.length} phrases`;
+  el.bmCount.textContent = `${bookmarkedPhrases().length} phrases`;
 }
 
 function renderBookmarkPlayStatus() {
@@ -304,8 +335,19 @@ function createEmailRow(p) {
 
 function renderEmailSection() {
   el.emailGroups.innerHTML = '';
-  const groups = groupByCategory(EMAIL_PHRASES);
-  el.emailCount.textContent = `${EMAIL_PHRASES.length} phrases`;
+  const filtered = filterForSearch(EMAIL_PHRASES);
+  const groups = groupByCategory(filtered);
+  el.emailCount.textContent = `${filtered.length} of ${EMAIL_PHRASES.length} phrases`;
+
+  if (!filtered.length) {
+    const empty = document.createElement('div');
+    empty.className = 'email-empty';
+    empty.textContent = searchQuery
+      ? `No email/conversation phrases match "${searchQuery}".`
+      : 'No email/conversation phrases to display.';
+    el.emailGroups.appendChild(empty);
+    return;
+  }
 
   for (const [category, items] of groups) {
     const sub = document.createElement('div');
@@ -382,6 +424,19 @@ function playEmail() {
 function renderPoolStats() {
   const stats = phraseEngine.getPoolStats();
   el.poolStats.textContent = `${stats.total} phrases in bank · ${stats.seen} shown · ${stats.remaining} remaining`;
+}
+
+function applySearch() {
+  searchQuery = el.searchInput.value.trim();
+  el.btnSearchClear.hidden = !searchQuery;
+  if (searchQuery) {
+    // Global: search across the entire bank (grouped), regardless of current view.
+    renderTable(phraseEngine.viewAll(), 'all');
+  } else {
+    renderTable(currentPhrases, viewMode);
+  }
+  renderBookmarks();
+  renderEmailSection();
 }
 
 function highlightRow(id) {
@@ -617,6 +672,13 @@ function init() {
   });
 
   el.btnPlayEmail.addEventListener('click', playEmail);
+
+  el.searchInput.addEventListener('input', applySearch);
+  el.btnSearchClear.addEventListener('click', () => {
+    el.searchInput.value = '';
+    applySearch();
+    el.searchInput.focus();
+  });
 
   el.btnPlayAll.addEventListener('click', () => {
     if (!currentPhrases.length) {
