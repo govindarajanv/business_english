@@ -10,7 +10,7 @@ When the user asks to **"generate"** or **"try now"**, produce a batch of **10 s
 | :--- | :--- | :--- |
 | Touch base | To connect briefly and discuss something | "Let's touch base next week to review project progress." |
 
-The generated batch must contain **10 phrases that do NOT exist anywhere in the current phrase bank** (`src/data/phrases.js`, currently 233 phrases) — not merely phrases absent from an already-shown list. Confirmed user rule: "all [the current count] should not have these newly generated phrases." To meet this:
+The generated batch must contain **10 phrases that do NOT exist anywhere in the current phrase bank** (`src/data/phrases.js`, currently 242 phrases) — not merely phrases absent from an already-shown list. Confirmed user rule: "all [the current count] should not have these newly generated phrases." To meet this:
 
 - If the phrases already exist in the bank, sample 10 unseen ones (deduplicated, tracked in `localStorage`); the bank recycles when exhausted so generation continues without within-batch duplicates.
 - If the user wants phrases beyond the bank, **generate brand-new phrases** and **add them to `src/data/phrases.js`**, then verify the new count.
